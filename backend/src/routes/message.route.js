@@ -1,12 +1,15 @@
 import express from 'express';
 import { getAllContacts, getMessagesByUserId, sendMessage, getChatPartners } from '../controllers/message.controller.js';
 import { protectRoute } from '../middleware/auth.middleware.js';
+import { arcjetProtection } from '../middleware/arcjet.middleware.js';
 
 const router = express.Router();
 
-router.get("/contacts", protectRoute, getAllContacts);
-router.get("/chats", protectRoute, getChatPartners);
-router.get("/:id", protectRoute, getMessagesByUserId); // Get messages with a specific user. Use :id to identify the other user in the chat
-router.post("/send/:id",protectRoute, sendMessage);
+router.use(arcjetProtection, protectRoute); // Apply authentication middleware to all routes in this router
+
+router.get("/contacts", getAllContacts);
+router.get("/chats", getChatPartners);
+router.get("/:id", getMessagesByUserId); // Get messages with a specific user. Use :id to identify the other user in the chat
+router.post("/send/:id", sendMessage);
 
 export default router;

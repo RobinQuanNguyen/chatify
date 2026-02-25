@@ -78,23 +78,32 @@ export const getChatPartners = async (req, res) => {
                 { senderId: myId },
                 { receiverId: myId },
             ]
-        })
-
-        console.log("all message related to me", messages);
-        
+        });        
 
         //Extract unique user IDs of chat partners
-        const chatPartnerIds = new Set();
-        messages.forEach(msg => {
-            if (msg.senderId.toString() === myId.toString()) {
-                chatPartnerIds.add(msg.receiverId.toString());
-            } else {
-                chatPartnerIds.add(msg.senderId.toString());
-            }
-        });
-        
+        // const chatPartnerIds = new Set();
+        // messages.forEach(msg => {
+        //     if (msg.senderId.toString() === myId.toString()) {
+        //         chatPartnerIds.add(msg.receiverId.toString());
+        //     } else {
+        //         chatPartnerIds.add(msg.senderId.toString());
+        //     }
+        // });
+
+        // Extract partner ID (in a cleaner way using map and Set)
+        const chatPartnersId = [...
+            new Set(
+                messages.map((msg) => 
+                    msg.senderId.toString() === myId.toString() 
+                    ? msg.receiverId.toString() 
+                    : msg.senderId.toString()
+                )
+            )
+        ];
+
         // Fetch user details of chat partners
-        const chatPartners = await User.find({ _id: { $in: Array.from(chatPartnerIds) } }).select("-password");
+        const chatPartners = await User.find({ _id: { $in: chatPartnersId } }).select("-password");
+
         res.status(200).json(chatPartners);
     } catch (error) {
         
