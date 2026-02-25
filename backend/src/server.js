@@ -17,8 +17,8 @@ const PORT = ENV.PORT || 3000;
 app.use(express.json()); // for parsing application/json
 app.use(cookieParser()); // for parsing cookies
 
-app.use("/api/auth", authRoutes);
-app.use("/api/message", messageRoutes);
+app.use("/api/auth", authRoutes); // All routes in authRoutes will be prefixed with /api/auth
+app.use("/api/message", messageRoutes); // All routes in messageRoutes will be prefixed with /api/message
 
 // make ready for deployment
 if (ENV.NODE_ENV === 'production') {

@@ -1,9 +1,12 @@
 import express from 'express';
+import { getAllContacts, getMessagesByUserId, sendMessage, getChatPartners } from '../controllers/message.controller.js';
+import { protectRoute } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.get("/send", (req, res) => {
-    res.send("Send message endpoint");
-});
+router.get("/contacts", protectRoute, getAllContacts);
+router.get("/chats", protectRoute, getChatPartners);
+router.get("/:id", protectRoute, getMessagesByUserId); // Get messages with a specific user. Use :id to identify the other user in the chat
+router.post("/send/:id",protectRoute, sendMessage);
 
 export default router;
