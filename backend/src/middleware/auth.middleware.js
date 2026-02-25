@@ -22,6 +22,7 @@ export const protectRoute = async (req, res, next) => {
         }
 
         req.user = user; // Attach user to request object for use in controllers
+        
         next(); // so under the next method, we can access req.user to get the authenticated user's data
 
     } catch (error) {
