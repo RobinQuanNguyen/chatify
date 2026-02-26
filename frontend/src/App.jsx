@@ -6,6 +6,8 @@ import { useAuthStore } from './store/useAuthStore.js'
 import { useEffect } from 'react'
 import PageLoader from './components/PageLoader.jsx'
 
+import { Toaster } from 'react-hot-toast'
+
 function App() {
   const {checkAuth, isCheckingAuth, authUser} = useAuthStore()
 
@@ -28,10 +30,12 @@ function App() {
 
 
       <Routes>
-        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} /> // If user is authenticated, show the ChatPage, otherwise show the LoginPage 
+        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} /> {/*If user is authenticated, show the ChatPage, otherwise show the LoginPage */} 
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
       </Routes>
+
+      <Toaster/>
     </div>
   )
 }
