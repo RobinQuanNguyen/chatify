@@ -7,7 +7,7 @@ export default {
   theme: {
         extend: {
             animation: {
-                'border': 'border 4s linear infinite',
+                'border': 'border 8s linear infinite',
             },
             keyframes: {
                 'border': {
