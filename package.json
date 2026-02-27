@@ -12,5 +12,8 @@
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "description": ""
+    "description": "",
+    "dependencies": {
+        "react-router-dom": "^7.13.1"
+    }
 }

@@ -8,7 +8,7 @@ function LoginPage() {
   const [formData, setFormData] = useState({email:"", password: ""})
     const {logIn, isLoggingIn} = useAuthStore()
   
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault()
       logIn(formData)
     }
