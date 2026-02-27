@@ -43,11 +43,10 @@ export const useAuthStore = create((set) => ({
         try {
             const res = await axiosInstance.post("/auth/login", data);
             
-            //set({authUser: res.data.user})
             const user = res.data?.user ?? res.data;   // Handle cases where backend might return user object directly or wrapped in a "user" field
             set({ authUser: user });
 
-            
+
             // use react-hot-toast to show success message
             toast.success("Logged in successfully!")
         } catch (error) {
