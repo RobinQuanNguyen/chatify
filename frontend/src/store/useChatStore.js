@@ -19,12 +19,14 @@ export const useChatStore = create((set, get) => ({
     },
 
     setActiveTab: (tab) => set({activeTab: tab}),
+
     setSelectedUser: (selectedUser) => set({selectedUser: selectedUser}),
 
     getAllContacts: async () => {
         set({isUserLoading: true})
         try {
             const res = await axiosInstance.get("/message/contacts");
+            console.log("Contacts response:", res.data);
             set({allContact: res.data})
 
         } catch (error) {
