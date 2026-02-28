@@ -13,7 +13,7 @@ import { ENV } from './lib/env.js';
 const app = express();
 const __dirname = path.resolve();
 
-const PORT = ENV.PORT || 3000;
+const PORT = ENV.RUN_PORT || 3000;
 
 app.use(cors({origin: ENV.CLIENT_URL, credentials: true})); // enable CORS for the frontend URL. Allows frontend to send cookies (credentials: true) and access responses from the backend. Adjust origin as needed for production.
 
