@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import axios from 'axios';
 import { axiosInstance } from '../lib/axios.js';
 import { toast } from 'react-hot-toast';
+import { useAuthStore } from './useAuthStore.js';
 
 export const useChatStore = create((set, get) => ({
     allContact: [],
@@ -61,4 +61,44 @@ export const useChatStore = create((set, get) => ({
             set({isMessageLoading: false})
         }
     },
+
+    sendMessage: async (messageData) => {
+        const {selectedUser, messages} = get()
+        const {authUser} = useAuthStore.getState()
+        const tempId = `temp-${Date.now()}`
+
+        const optimisticMessage = {
+            _id: tempId,
+            senderId: authUser._id,
+            receiver: selectedUser._id,
+            text: messageData.text,
+            image: messageData.image,
+            createdAt: new Date().toISOString(),
+            isOptimistic: true, // Flag to identify optimistic messages
+        }
+
+        // Immidiately add the optimistic message to the UI even before the API call completes
+        set((state) => ({messages: [...state.messages, optimisticMessage]}))
+
+        try {
+            const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData)
+
+            // This was used to handle the mismatch between 2 types of response from the server, one with data property and one without. This was due to the inconsistency in the backend response which was later fixed. Keeping this code here for future reference in case of similar issues.
+            const savedMsg = res.data.data ?? res.data; // handle both shapes
+
+            // replace optimistic with saved message (keeps createdAt valid, avoids duplicates)
+            set((state) => ({
+                messages: state.messages.map((m) => (m._id === tempId ? savedMsg : m)),
+            }));
+
+        } catch (error) {
+            // remove optimistic message on failure
+            set((state) => ({
+                messages: state.messages.filter((m) => m._id !== tempId),
+            }));
+            
+            toast.error(error.response?.data?.message || "Error sending message")
+        }
+    },
+
 }))
