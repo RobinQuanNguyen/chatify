@@ -17,7 +17,7 @@ const PORT = ENV.RUN_PORT || 3000;
 
 app.use(cors({origin: ENV.CLIENT_URL, credentials: true})); // enable CORS for the frontend URL. Allows frontend to send cookies (credentials: true) and access responses from the backend. Adjust origin as needed for production.
 
-app.use(express.json()); // for parsing application/json
+app.use(express.json({limit: "5mb"})); // for parsing application/json
 app.use(cookieParser()); // for parsing cookies
 
 app.use("/api/auth", authRoutes); // All routes in authRoutes will be prefixed with /api/auth
