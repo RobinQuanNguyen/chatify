@@ -3,6 +3,8 @@ import { axiosInstance } from '../lib/axios.js';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from './useAuthStore.js';
 
+const notificationSound = new Audio("/sounds/notification.mp3");
+
 export const useChatStore = create((set, get) => ({
     allContact: [],
     chats: [],
@@ -100,5 +102,54 @@ export const useChatStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Error sending message")
         }
     },
+
+    subscribeToMessages: async () => {
+        const { selectedUser, isSoundEnabled, allContact, getAllContacts } = get();
+        
+        if (!selectedUser) return;
+
+        // Load contacts if not already loaded
+        if (!allContact || allContact.length === 0) {
+            await getAllContacts();
+        }
+
+        const socket = useAuthStore.getState().socket;
+
+        // Unsubscribe from previous listeners to prevent duplicates
+        socket.off("newMessage");
+
+        socket.on("newMessage", (newMessage) => {
+            const contacts = get().allContact || [];
+
+            const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+
+            if (!isMessageSentFromSelectedUser) {
+                // find sender in contact list
+                const sender = contacts.find((u) => u._id === newMessage.senderId);
+            
+                const senderName = sender?.fullName || "Someone";
+
+                toast(`📩 New message from ${senderName}`);
+                return; // Don't add the message to the current chat if it's not from the selected user
+            }
+
+            const currentMessages = get().messages;
+
+            set({ messages: [...currentMessages, newMessage]}) // keep all the old messages and add the new one at the end
+
+            // Play sound notification for new incoming messages
+            if (isSoundEnabled) {
+                notificationSound.currentTime = 0; // reset to start
+                notificationSound.play().catch((err) => {
+                    console.log("Error playing notification sound:", err);
+                });
+            }
+        })
+    },
+
+    unsubscribeFromMessages: () => {
+        const socket = useAuthStore.getState().socket;
+        socket.off("newMessage");
+    }
 
 }))
