@@ -8,10 +8,11 @@ function SignUpPage() {
   const [formData, setFormData] = useState({fullName: "", email:"", password: ""})
   const {signUp, isSigningUp} = useAuthStore()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    signUp(formData)
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await signUp(formData);
+  };
+
   return (
     <div className="w-full flex items-center justify-center p-4 bg-slate-900">
       <div className="relative w-full max-w-6xl md:h-[800px] h-[650px]">

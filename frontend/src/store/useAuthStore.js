@@ -17,7 +17,7 @@ export const useAuthStore = create((set, get) => ({
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get("/auth/check");
-            set({ authUser: res.data.user})
+            set({ authUser: res.data.user ?? res.data });
 
             get().connectSocket(); // Connect to socket if authentication is successful
         } catch (error) {
@@ -33,7 +33,7 @@ export const useAuthStore = create((set, get) => ({
 
         try {
             const res = await axiosInstance.post("/auth/signup", data);
-            set({authUser: res.data.user})
+            set({authUser: res.data.user ?? res.data})
 
             // use react-hot-toast to show success message
             toast.success("Account created successfully!")
