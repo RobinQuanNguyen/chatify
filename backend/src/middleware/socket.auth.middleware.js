@@ -30,7 +30,7 @@ export const socketAuthMiddleware = async (socket, next) => {
         socket.user = user;
         socket.userId = user._id.toString(); // Ensure userId is a string for consistent comparisons
 
-        console.log(`Socket authentication successful for user: ${user.username} (ID: ${user._id})`);
+        console.log(`Socket authentication successful for user: ${user.fullName} (ID: ${user._id})`);
 
         // Proceed to the next middleware or the connection handler
         next();

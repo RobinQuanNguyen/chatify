@@ -22,7 +22,7 @@ const userSocketMap = {}; //{userId:socketId}
 
 // Usw socket.io to listen for events from clients
 io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.user.username} (ID: ${socket.user._id})`);
+    console.log(`User connected: ${socket.user.fullName} (ID: ${socket.user._id})`);
 
     // Update the online user list
     const userId = socket.userId;
@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketMap)); // Send the list of online user IDs to all clients
 
     socket.on("disconnect", () => {
-        console.log(`User disconnected: ${socket.user.username} (ID: ${socket.user._id})`);
+        console.log(`User disconnected: ${socket.user.fullName}`);
 
         // Remove the user from the online user list
         delete userSocketMap[userId];
