@@ -23,6 +23,7 @@ function NoChatHistoryPlaceholder({ name, onQuickSend }) {
           <div className="h-px w-32 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mx-auto"></div>
         </div>
 
+        {/* QUICK TEXTS */}
         <div className="flex flex-wrap gap-2 justify-center">
           {quickTexts.map((t) => (
             <button
