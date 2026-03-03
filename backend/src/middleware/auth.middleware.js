@@ -30,3 +30,10 @@ export const protectRoute = async (req, res, next) => {
         res.status(401).json({message: "Not authorized"});
     }
 }
+
+export const requireAdmin = (req, res, next) => {
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ message: "Forbidden: admin only" });
+  }
+  next();
+}
