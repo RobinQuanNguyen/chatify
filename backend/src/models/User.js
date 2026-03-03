@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
 }, {timestamps: true}); // createAt and updateAt built-in fields
 
 const User = mongoose.model("User", userSchema);

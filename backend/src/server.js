@@ -5,6 +5,8 @@ import cors from 'cors';
 
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
+import adminRoutes from './routes/admin.route.js';
+
 import { connectDB } from './lib/db.js';
 
 import { ENV } from './lib/env.js';
@@ -24,6 +26,7 @@ app.use(cookieParser()); // for parsing cookies
 
 app.use("/api/auth", authRoutes); // All routes in authRoutes will be prefixed with /api/auth
 app.use("/api/message", messageRoutes); // All routes in messageRoutes will be prefixed with /api/message
+app.use("/api/admin", adminRoutes); // All routes in adminRoutes will be prefixed with /api/admin
 
 // make ready for deployment
 if (ENV.NODE_ENV === 'production') {
