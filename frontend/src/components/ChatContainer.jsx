@@ -8,9 +8,14 @@ import MessageLoadingSkeleton from "./MessageLoadingSkeleton.jsx";
 
 
 function ChatContainer() {
-  const { selectedUser, getMessagesByUserId, messages, isMessageLoading, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+  const { selectedUser, getMessagesByUserId, messages, isMessageLoading, subscribeToMessages, unsubscribeFromMessages, sendMessage } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null)
+
+  const handleQuickSend = async (text) => {
+    if (!text?.trim()) return;
+    await sendMessage({ text });
+  };
 
   useEffect(() => {
     if (selectedUser?._id) {
@@ -98,7 +103,10 @@ function ChatContainer() {
         ) : isMessageLoading ? (
           <MessageLoadingSkeleton />
         ) : (
-          <NoChatHistoryPlaceholder name={selectedUser.fullName} />
+          <NoChatHistoryPlaceholder 
+            name={selectedUser.fullName}
+            onQuickSend={handleQuickSend}  
+          />
         )}
       </div>
 
