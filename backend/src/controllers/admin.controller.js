@@ -69,3 +69,29 @@ export const deleteUserAndData = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { text } = req.params;
+
+    if (!text) {
+      return res.status(400).json({ message: "Message text is required" });
+    }
+
+    const deleteResult = await Message.deleteMany({
+      text: { $regex: text, $options: "i" } // case-insensitive
+    });
+
+    // For case sensitivity
+    // const deleteResult = await Message.deleteMany({ text });
+
+    return res.status(200).json({
+      message: "Messages deleted successfully",
+      deletedCount: deleteResult.deletedCount,
+    });
+
+  } catch (error) {
+    console.log("Error in deleteMessage:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
