@@ -90,13 +90,45 @@ export const getChatPartners = async (req, res) => {
     try {
         const myId = req.user._id;
 
-        // Find all messages where the logged-in user is either the sender or receiver
+        // Find all messages where the logged-in user is either the sender or receiver. We will also sort the message to find the most recent sender/receiver
         const messages = await Message.find({
             $or: [
                 { senderId: myId },
                 { receiverId: myId },
             ]
-        });        
+        })
+        .sort({ createdAt: -1 }) // Sort by createdAt in descending order to get the most recent messages first
+        .select("senderId receiverId createdAt"); // Only select the senderId, receiverId, and createdAt fields to optimize the query
+
+        // Setup ordered partnerId list
+        const seen = new Set();
+        const orderedPartnerIds = [];
+
+        for (const msg of messages) {
+            const partnerId =
+                msg.senderId.toString() === myId.toString()
+                ? msg.receiverId.toString()
+                : msg.senderId.toString();
+
+            if (!seen.has(partnerId)) {
+                seen.add(partnerId);
+                orderedPartnerIds.push(partnerId);
+            }
+        }
+
+        // If no chats yet
+        if (orderedPartnerIds.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const chatPartners = await User.find({ _id: { $in: orderedPartnerIds } }).select("-password");
+
+        const userById = new Map(chatPartners.map((u) => [u._id.toString(), u]));
+        const orderedPartners = orderedPartnerIds
+        .map((id) => userById.get(id))
+        .filter(Boolean);
+
+        return res.status(200).json(orderedPartners);
 
         //Extract unique user IDs of chat partners
         // const chatPartnerIds = new Set();
@@ -109,21 +141,22 @@ export const getChatPartners = async (req, res) => {
         // });
 
         // Extract partner ID (in a cleaner way using map and Set)
-        const chatPartnersId = [...
-            new Set(
-                messages.map((msg) => 
-                    msg.senderId.toString() === myId.toString() 
-                    ? msg.receiverId.toString() 
-                    : msg.senderId.toString()
-                )
-            )
-        ];
+        // const chatPartnersId = [...
+        //     new Set(
+        //         messages.map((msg) => 
+        //             msg.senderId.toString() === myId.toString() 
+        //             ? msg.receiverId.toString() 
+        //             : msg.senderId.toString()
+        //         )
+        //     )
+        // ];
 
         // Fetch user details of chat partners
-        const chatPartners = await User.find({ _id: { $in: chatPartnersId } }).select("-password");
+        //const chatPartners = await User.find({ _id: { $in: chatPartnersId } }).select("-password");
 
-        res.status(200).json(chatPartners);
+        //res.status(200).json(chatPartners);
     } catch (error) {
-        
+        console.log("Error in getChatPartners:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }

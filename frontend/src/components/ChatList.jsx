@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
 
 function ChatList() {
-  const { getMyChatPartners, chats, isUserLoading, setSelectedUser } = useChatStore();
+  const { getMyChatPartners, chats, isUserLoading, setSelectedUser, highlightChatId } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
@@ -29,8 +29,15 @@ function ChatList() {
       {chats.map(chat => (
         <div
           key={chat._id}
-          className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
-          onClick={() => setSelectedUser(chat)}
+          className={`p-4 rounded-lg cursor-pointer transition-colors
+            ${chat._id === highlightChatId
+            ? "bg-cyan-500/20 ring-2 ring-cyan-400 animate-pulse"
+            : "bg-cyan-500/10 hover:bg-cyan-500/20"
+            }`}
+          onClick={() => {
+            setSelectedUser(chat)
+            useChatStore.getState().highlightChat(null); // Clear highlight immediately on click
+          }}
         >
           <div className="flex items-center gap-3">
             <div className={`avatar ${onlineUsers.includes(chat._id) ? 'online' : 'offline'}`}>
