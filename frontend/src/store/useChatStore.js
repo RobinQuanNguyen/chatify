@@ -14,6 +14,14 @@ export const useChatStore = create((set, get) => ({
     isUserLoading: false,
     isMessageLoading:false,
     isSoundEnabled: localStorage.getItem("isSoundEnabled") === "true" || false,
+    highlightChatId: null,
+
+    highlightChat: (userId) => {
+        set({highlightChatId: userId})
+        setTimeout(() => {
+            set({highlightChatId: null})
+        }, 2000) // Highlight for 2 seconds
+    },
 
     toggleSound: () => {
         localStorage.setItem("isSoundEnabled", !get().isSoundEnabled)
@@ -72,7 +80,7 @@ export const useChatStore = create((set, get) => ({
         const optimisticMessage = {
             _id: tempId,
             senderId: authUser._id,
-            receiver: selectedUser._id,
+            receiverId: selectedUser._id,
             text: messageData.text,
             image: messageData.image,
             createdAt: new Date().toISOString(),
@@ -165,6 +173,9 @@ export const useChatStore = create((set, get) => ({
 
                     return { chats: nextChats };
                 });
+
+                // Highlight the chat with the sender for a short moment to draw attention
+                get().highlightChat(newMessage.senderId);
 
                 // 2) Toast
                 const sender = (get().allContact || []).find((u) => u._id === newMessage.senderId);
