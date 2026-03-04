@@ -82,6 +82,28 @@ export const useChatStore = create((set, get) => ({
         // Immidiately add the optimistic message to the UI even before the API call completes
         set((state) => ({messages: [...state.messages, optimisticMessage]}))
 
+        // Move the receiver (selectedUser) to top of chat list immediately
+        set((state) => {
+            const partnerId = selectedUser?._id;
+            if (!partnerId) return {};
+
+            const idx = state.chats.findIndex((u) => u._id === partnerId);
+
+            // If partner is not in chats yet, add from contacts (optional)
+            const partnerUser =
+                idx !== -1
+                ? state.chats[idx]
+                : state.allContact.find((u) => u._id === partnerId);
+
+            if (!partnerUser) return {};
+
+            const nextChats = [...state.chats];
+            if (idx !== -1) nextChats.splice(idx, 1);
+            nextChats.unshift(partnerUser);
+
+            return { chats: nextChats };
+        });
+
         try {
             const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, messageData)
 
