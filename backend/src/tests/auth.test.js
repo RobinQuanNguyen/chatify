@@ -10,13 +10,14 @@ describe("Auth API (integration via Axios)", () => {
 
   });
 
-//   test("POST /auth/login returns 400/401 for wrong credentials", async () => {
-//     const res = await http.post("/auth/login", {
-//       email: "wrong@example.com",
-//       password: "wrongpassword",
-//     });
+  test("POST /auth/login returns 400/401 for wrong credentials", async () => {
+    const res = await axiosInstance.post("/auth/login", {
+      email: "wrong@example.com",
+      password: "wrongpassword",
+    });
 
-//     expect([400, 401]).toContain(res.status);
-//     expect(res.data).toHaveProperty("message");
-//   });
+    expect([400, 401]).toContain(res.status);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toMatch(/Invalid email or password|User not found/);
+  });
 });

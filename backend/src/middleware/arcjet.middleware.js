@@ -6,9 +6,8 @@ import { ENV } from "../lib/env.js";
  
 export const arcjetProtection = async (req, res, next) => {
     try {
-        const arcjetOn = ENV.ARCJET_ENABLED === "true";
         // For testing purposes, arject will be off in test mode to avoid interference with tests. In production, it will be active to protect against bots and malicious traffic.
-        if (!arcjetOn) {
+        if (ENV.NODE_ENV === "test") {
             console.log("Arcjet protection middleware will not be active in test mode. But if the test is set to test arcjet, it will be active.");
             return next();
         }
