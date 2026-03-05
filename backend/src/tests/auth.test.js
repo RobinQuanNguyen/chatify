@@ -1,6 +1,6 @@
 import { axiosInstance } from "../lib/axios.js";
 
-describe("Auth API (integration via Axios)", () => {
+describe("Check for wrong credentials ", () => {
   test("GET /auth/check returns 401 when not authenticated", async () => {
     const res = await axiosInstance.get("/auth/check");
     
