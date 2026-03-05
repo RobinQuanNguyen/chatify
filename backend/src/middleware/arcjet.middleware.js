@@ -2,18 +2,26 @@
 
 import aj from "../lib/arcjet.js";
 import { isSpoofedBot } from "@arcjet/inspect";
-
+import { ENV } from "../lib/env.js";
+ 
 export const arcjetProtection = async (req, res, next) => {
     try {
+        const arcjetOn = ENV.ARCJET_ENABLED === "true";
+        // For testing purposes, arject will be off in test mode to avoid interference with tests. In production, it will be active to protect against bots and malicious traffic.
+        if (!arcjetOn) {
+            console.log("Arcjet protection middleware will not be active in test mode. But if the test is set to test arcjet, it will be active.");
+            return next();
+        }
+        
         const decision = await aj.protect(req);
 
         if (decision.isDenied()) {
             if (decision.reason.isRateLimit()) {
                 return res.status(429).json({message: "Rate limit exceeded. Please try again later."});
             } else if (decision.reason.isBot()) {
-                return res.status(403).json({message: "Bot access denied."});
+                return res.status(403).json({message: "Bot access denied by Arcjet."});
             } else {
-                return res.status(403).json({message: "Access denied."});
+                return res.status(403).json({message: "Access denied by Arcjet."});
             }
         } 
 
