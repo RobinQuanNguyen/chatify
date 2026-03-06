@@ -48,7 +48,8 @@ Upcoming feature:
 PORT=3000
 MONGO_URI=your_mongo_uri_here
 
-NODE_ENV=development
+MONGO_URI_FOR_TEST=add_your_mongo_uri_for_test_here
+NODE_ENV=development #change this to `test` if you want to enable test mode for database and arcjet
 
 JWT_SECRET=your_jwt_secret
 

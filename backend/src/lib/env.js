@@ -4,6 +4,7 @@ import "dotenv/config";
 export const ENV = {
     RUN_PORT: process.env.RUN_PORT,
     MONGO_URI: process.env.MONGO_URI,
+    MONGO_URI_FOR_TEST: process.env.MONGO_URI_FOR_TEST,
     JWT_SECRET: process.env.JWT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
     CLIENT_URL: process.env.CLIENT_URL,
