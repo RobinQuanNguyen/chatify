@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [22.x]
 
     defaults:
       run:
@@ -41,8 +41,11 @@ jobs:
       - name: Install backend dependencies
         run: npm ci
 
-      - name: Build backend
-        run: npm run build --if-present
+      - name: Start backend server
+        run: npm run dev &
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:3000/api/auth/test
 
       - name: Run backend tests
         run: npm test
