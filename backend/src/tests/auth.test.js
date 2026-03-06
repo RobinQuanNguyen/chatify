@@ -2,6 +2,7 @@ import { axiosInstance } from "../lib/axios.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
 import { ENV } from "../lib/env.js";
+import cloudinary from "../lib/cloudinary.js";
 
 // Setup and teardown for tests
 const test_user = {
@@ -52,6 +53,7 @@ describe("Check for POST /auth/signup function", () => {
     expect(res.data).toHaveProperty("fullName", "Test User");
     expect(res.data).toHaveProperty("email", "test@gmail.com");
     expect(res.data).toHaveProperty("profilePic", "");
+    expect(res.data).not.toHaveProperty("password"); // Password should not be returned in response
   });
 
   test("Password is hashed in the database", async () => {
@@ -116,4 +118,138 @@ describe("Check for POST /auth/signup function", () => {
     expect(res.data).toHaveProperty("message");
     expect(res.data.message).toBe("Password must be at least 6 characters long");
   });
+});
+
+describe("Check for POST /auth/login function", () => {
+  test("Successfully logs in with correct credentials", async () => {
+    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+
+    const res = await axiosInstance.post("/auth/login", {
+      email: test_user.email,
+      password: test_user.password,
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.data).toHaveProperty("_id");
+    expect(res.data).toHaveProperty("fullName", "Test User");
+    expect(res.data).toHaveProperty("email", "test@gmail.com");
+    expect(res.data).toHaveProperty("profilePic", "");
+    expect(res.data).not.toHaveProperty("password");
+  });
+
+  test("Missing fields returns 400", async () => {
+    const res = await axiosInstance.post("/auth/login", {
+      email: "",
+      password: "",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Email and password are required");
+  });
+
+  test("Wrong email returns 400", async () => {
+    const res = await axiosInstance.post("/auth/login", {
+      email: "nothing@gmail.com",
+      password: "Test@1234",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Invalid credentials");
+  });
+
+  test("Wrong password returns 400", async () => {
+    const res = await axiosInstance.post("/auth/login", {
+      email: "test@gmail.com",
+      password: "WrongPassword123",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Invalid credentials");
+  });
+});
+
+describe("Check for POST /auth/logout function", () => {
+  test("Successfully logs out the user", async () => {
+    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+  
+    const loginRes = await axiosInstance.post("/auth/login", {
+      email: test_user.email,
+      password: test_user.password,
+    });
+
+    const cookies = loginRes.headers["set-cookie"];
+    const jwtCookie = cookies.find(cookie => cookie.startsWith("jwt="));
+
+    const res = await axiosInstance.post("/auth/logout", {}, {
+      headers: {
+        Cookie: jwtCookie,
+      },
+    });
+    expect(res.status).toBe(200);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Logged out successfully");
+
+    // Check that the cookie is cleared
+    const logoutCookies = res.headers["set-cookie"];
+    const clearedJwtCookie = logoutCookies.find(cookie => cookie.startsWith("jwt="));
+    expect(clearedJwtCookie).toBeDefined();
+    expect(clearedJwtCookie).toContain("jwt=;");
+    expect(clearedJwtCookie).toContain("Max-Age=0");
+
+  });
+});
+
+describe("Check for PUT /auth/update-profile function", () => {
+  test("Successfully updates user profile", async () => {
+    await axiosInstance.post("/auth/signup", test_user);
+
+    const loginRes = await axiosInstance.post("/auth/login", {
+      email: test_user.email,
+      password: test_user.password,
+    });
+
+    const cookies = loginRes.headers["set-cookie"];
+    const jwtCookie = cookies.find(cookie => cookie.startsWith("jwt="));
+
+    // Use a valid base64 image or mock cloudinary
+    const res = await axiosInstance.put("/auth/update-profile", {
+      profilePic: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    }, {
+      headers: {
+        Cookie: jwtCookie,
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.data).toHaveProperty("profilePic");
+    expect(res.data.profilePic).not.toBe(""); // Check it's not empty
+    expect(res.data.profilePic).toContain("cloudinary.com"); // Check it's a Cloudinary URL
+
+    // Clean up: delete the uploaded image from Cloudinary
+    const imageUrl = res.data.profilePic;
+
+    const parts = imageUrl.split("/");
+    const filename = parts[parts.length - 1];
+    const publicId = filename.split(".")[0];
+
+    try {
+      await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+      console.log("Failed to cleanup Cloudinary image:", err.message);
+    }
+  });
+
+  test("Unauthorized update attempt returns 401", async () => {
+    const res = await axiosInstance.put("/auth/update-profile", {
+      profilePic: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    });
+
+    expect(res.status).toBe(401);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Unauthorized. No token provided");
+  });
+  
 });

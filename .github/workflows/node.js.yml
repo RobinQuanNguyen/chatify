@@ -27,6 +27,9 @@ jobs:
       MONGO_URI_FOR_TEST: ${{ secrets.MONGO_URI_FOR_TEST }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       RUN_PORT: ${{ secrets.RUN_PORT }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
