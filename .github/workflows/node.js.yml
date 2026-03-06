@@ -22,6 +22,12 @@ jobs:
       run:
         working-directory: backend
 
+    env:
+      NODE_ENV: ${{ secrets.NODE_ENV }}
+      MONGO_URI_FOR_TEST: ${{ secrets.MONGO_URI_FOR_TEST }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      RUN_PORT: ${{ secrets.RUN_PORT }}
+
     steps:
       - uses: actions/checkout@v4
 
