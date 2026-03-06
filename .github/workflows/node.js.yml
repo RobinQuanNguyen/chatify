@@ -23,6 +23,7 @@ jobs:
         working-directory: backend
 
     env:
+      CI: true
       NODE_ENV: ${{ secrets.NODE_ENV }}
       MONGO_URI_FOR_TEST: ${{ secrets.MONGO_URI_FOR_TEST }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -45,7 +46,7 @@ jobs:
         run: npm run dev &
 
       - name: Wait for backend to be ready
-        run: npx wait-on http://localhost:3000/api/auth/test
+        run: npx wait-on http://localhost:${RUN_PORT}/api/auth/test
 
       - name: Run backend tests
-        run: npm test
+        run: npm test -- --runInBand
