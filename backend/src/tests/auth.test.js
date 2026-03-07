@@ -168,6 +168,8 @@ describe("Check for POST /auth/login function", () => {
   });
 
   test("Wrong email returns 400", async () => {
+    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+
     const res = await axiosInstance.post("/auth/login", {
       email: "nothing@gmail.com",
       password: "Test@1234",
@@ -179,6 +181,8 @@ describe("Check for POST /auth/login function", () => {
   });
 
   test("Wrong password returns 400", async () => {
+    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+
     const res = await axiosInstance.post("/auth/login", {
       email: "test@gmail.com",
       password: "WrongPassword123",
