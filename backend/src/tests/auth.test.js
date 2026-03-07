@@ -45,7 +45,7 @@ describe("Check for wrong credentials ", () => {
 });
 
 describe("Check for POST /auth/signup function", () => {
-  test("Successfully creates a new user", async () => {
+  test("Successfully creates a new user returns 201", async () => {
     const res = await axiosInstance.post("/auth/signup", test_user);
 
     expect(res.status).toBe(201);
@@ -121,7 +121,7 @@ describe("Check for POST /auth/signup function", () => {
 });
 
 describe("Check for POST /auth/login function", () => {
-  test("Successfully logs in with correct credentials", async () => {
+  test("Successfully logs in with correct credentials returns 200", async () => {
     await axiosInstance.post("/auth/signup", test_user); // Create the user first
 
     const res = await axiosInstance.post("/auth/login", {
@@ -172,7 +172,7 @@ describe("Check for POST /auth/login function", () => {
 });
 
 describe("Check for POST /auth/logout function", () => {
-  test("Successfully logs out the user", async () => {
+  test("Successfully logs out the user returns 200", async () => {
     await axiosInstance.post("/auth/signup", test_user); // Create the user first
   
     const loginRes = await axiosInstance.post("/auth/login", {
@@ -203,7 +203,7 @@ describe("Check for POST /auth/logout function", () => {
 });
 
 describe("Check for PUT /auth/update-profile function", () => {
-  test("Successfully updates user profile", async () => {
+  test("Successfully updates user profile returns 200", async () => {
     await axiosInstance.post("/auth/signup", test_user);
 
     const loginRes = await axiosInstance.post("/auth/login", {
