@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import mongoose from "mongoose";
 import { ENV } from "../lib/env.js";
 import cloudinary from "../lib/cloudinary.js";
+import jwt from "jsonwebtoken";
 
 // Setup and teardown for tests
 const test_user = {
@@ -30,6 +31,24 @@ describe("Check for wrong credentials ", () => {
     expect(res.status).toBe(401);
     expect(res.data).toHaveProperty("message");
     expect(res.data.message).toBe("Unauthorized. No token provided");
+  });
+
+  test("GET /auth/check returns 401 when token user does not exist", async () => {
+    // Create a token with a non-existing user ID
+    const nonExistingUserId = new mongoose.Types.ObjectId().toString();
+
+    // Sign a token with the non-existing user ID. This proves that the token was signed by our server. But it does not prove the user exists in the DB.
+    const token = jwt.sign({ userId: nonExistingUserId }, ENV.JWT_SECRET, { expiresIn: "7d" });
+
+    const res = await axiosInstance.get("/auth/check", {
+      headers: {
+        Cookie: `jwt=${token}`,
+      },
+    });
+
+    expect(res.status).toBe(401);
+    expect(res.data).toHaveProperty("message");
+    expect(res.data.message).toBe("Unauthorized. User not found");
   });
 
   test("Wrong credentials returns 400", async () => {
