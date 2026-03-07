@@ -2,6 +2,7 @@ import { axiosInstance } from "../lib/axios.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { ENV } from "../lib/env.js";
+import User from "../models/User.js";
 
 
 describe("Check for unauthenticated access", () => {
@@ -66,5 +67,48 @@ describe("Check for unauthenticated access", () => {
         // Clean up: delete the test user and close the database connection
         await mongoose.connection.db.collection("users").deleteOne({ email: "test@gmail.com"});
         await mongoose.connection.close();
+    });
+});
+
+describe("Check for GET /message/contacts function", () => {
+    //Setup and teardown for tests
+    const test_user = {
+        fullName: "Test User",
+        email: "test@gmail.com",
+        password: "Test@1234",
+    }
+    let jwtCookie;
+
+    beforeAll(async () => {
+        await mongoose.connect(ENV.MONGO_URI_FOR_TEST);
+        const signupRes = await axiosInstance.post("/auth/signup", test_user);
+        const cookies = signupRes.headers["set-cookie"];
+        jwtCookie = cookies.find(cookie => cookie.startsWith("jwt="));
+    });
+
+    afterAll(async () => {
+        await mongoose.connection.db.collection("users").deleteOne({ email: test_user.email});
+        await mongoose.connection.close();
+    });
+
+    test("GET /message/contacts returns 200 and list of contacts when authenticated", async () => {
+        const totalUsers = await User.countDocuments();
+
+        const res = await axiosInstance.get("/message/contacts", {
+            headers: {
+                Cookie: jwtCookie,
+            },
+        });
+
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.data)).toBe(true);
+        expect(res.data.length).toBe(totalUsers -1);
+    });
+
+    test("GET /message/contacts returns 401 when not authenticated", async () => {
+        const res = await axiosInstance.get("/message/contacts");
+        expect(res.status).toBe(401);
+        expect(res.data).toHaveProperty("message");
+        expect(res.data.message).toBe("Unauthorized. No token provided");
     });
 });
