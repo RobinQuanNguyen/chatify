@@ -14,11 +14,11 @@ Feature:
 - API Rate-Limiting powered by Arcjet
 - Zustand for State Management
 - Deployment with Sevalla
+- CI using GitHub Action
 
 Upcoming feature:
-- Send welcome email (require a owned domain)
+- Send welcome email (requires a owned domain)
 - Test automation using Robot Framework
-- CI/CD using Github Action
 - (Front-end) Indicators for unseen message
 - (Front-end) New features for chat container.
 
