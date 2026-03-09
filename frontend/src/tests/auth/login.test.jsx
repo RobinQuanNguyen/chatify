@@ -22,7 +22,7 @@ const TEST_LOGIN_USER = {
 	password: "123456",
 };
 
-const realLogIn = useAuthStore.getState().logIn;
+const realLogIn = useAuthStore.getState().logIn; // this is the real logIn func
 
 function renderLoginPage() {
 	return render(
@@ -39,13 +39,14 @@ describe("LoginPage unit behavior", () => {
 			authUser: null,
 			isCheckingAuth: false,
 			isLoggingIn: false,
-			logIn: vi.fn(),
+			logIn: vi.fn(), // Mock logIn to prevent actual API calls during unit tests
 			connectSocket: vi.fn(),
 			socket: null,
 			onlineUsers: [],
 		});
 	});
 
+    // Test 1: Does the form render?
 	it("renders login form - Login form renders", () => {
 		renderLoginPage();
 
@@ -53,8 +54,13 @@ describe("LoginPage unit behavior", () => {
 		expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
 		expect(screen.getByPlaceholderText("Enter your password")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "Log In" })).toBeInTheDocument();
+
+		expect(screen.getByRole("link", { name: "Don't have an account? Sign Up" })).toBeInTheDocument();
+
+        // TO-DO: add test for "Continue as guest" button when implemented
 	});
 
+    // Test 2: Does typing update the input value?
 	it("updates email input when typing - Typing updates input state", async () => {
 		const user = userEvent.setup();
 		renderLoginPage();
@@ -65,6 +71,7 @@ describe("LoginPage unit behavior", () => {
 		expect(emailInput).toHaveValue("user@example.com");
 	});
 
+    // Test 3: Does clicking submit call the logIn function?
 	it("calls login function on submit - Submit calls logIn from useAuthStore", async () => {
 		const user = userEvent.setup();
 		const mockLogIn = vi.fn();
@@ -83,6 +90,7 @@ describe("LoginPage unit behavior", () => {
 		});
 	});
 
+    // Test 4: Does the loading spinner show when isLoggingIn = true?
 	it("shows loader when logging in - Loading spinner appears when isLoggingIn = true", () => {
 		useAuthStore.setState({ isLoggingIn: true });
 
@@ -94,6 +102,7 @@ describe("LoginPage unit behavior", () => {
 		expect(container.querySelector(".animate-spin")).toBeInTheDocument();
 	});
 
+    // Test 5: Does error toast appear on failed login?
 	it("shows error toast when login fails - Error message appears when login fails", async () => {
 		const user = userEvent.setup();
 		const mockLogIn = vi.fn().mockImplementation(async () => {
@@ -114,6 +123,7 @@ describe("LoginPage unit behavior", () => {
 });
 
 describe("LoginPage real backend login", () => {
+    // Verify th
 	beforeAll(async () => {
 		await axios.get("http://localhost:3000/api/auth/test", {
 			withCredentials: true,
@@ -126,7 +136,7 @@ describe("LoginPage real backend login", () => {
 			authUser: null,
 			isCheckingAuth: false,
 			isLoggingIn: false,
-			logIn: realLogIn,
+			logIn: realLogIn, // Use the real logIn function to test actual backend interaction
 			connectSocket: vi.fn(),
 			socket: null,
 			onlineUsers: [],
