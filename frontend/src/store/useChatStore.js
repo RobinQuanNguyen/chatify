@@ -20,7 +20,7 @@ export const useChatStore = create((set, get) => ({
         set({highlightChatId: userId})
         setTimeout(() => {
             set({highlightChatId: null})
-        }, 2000) // Highlight for 2 seconds
+        }, 5000) // Highlight for 5 seconds
     },
 
     toggleSound: () => {

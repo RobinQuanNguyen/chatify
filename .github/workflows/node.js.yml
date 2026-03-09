@@ -11,16 +11,12 @@ on:
     branches: ["main"]
 
 jobs:
-  backend-test:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [22.x]
-
-    defaults:
-      run:
-        working-directory: backend
 
     env:
       CI: true
@@ -40,16 +36,24 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
 
       - name: Install backend dependencies
-        run: npm ci
+        run: npm ci --prefix backend
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
 
       - name: Start backend server
-        run: npm run dev &
+        run: npm run dev --prefix backend &
 
       - name: Wait for backend to be ready
-        run: npx wait-on http://localhost:${RUN_PORT}/api/auth/test
+        run: npx --prefix backend wait-on http://localhost:${RUN_PORT}/api/auth/test
 
       - name: Run backend tests
-        run: npm test -- --runInBand
+        run: npm test --prefix backend -- --runInBand
+
+      - name: Run frontend tests
+        run: npm test --prefix frontend
