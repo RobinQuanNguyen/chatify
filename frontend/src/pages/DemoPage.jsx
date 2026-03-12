@@ -12,7 +12,7 @@ import {
   UserIcon,
 } from "lucide-react"
 
-// ─── Demo Profile Header ────────────────────────────────────────────────────
+// Demo Profile Header
 
 function DemoProfileHeader() {
   const navigate = useNavigate()
@@ -47,7 +47,7 @@ function DemoProfileHeader() {
   )
 }
 
-// ─── Demo Tab Switch ─────────────────────────────────────────────────────────
+// Demo Tab Switch
 
 function DemoTabSwitch({ activeTab, setActiveTab }) {
   return (
@@ -68,7 +68,7 @@ function DemoTabSwitch({ activeTab, setActiveTab }) {
   )
 }
 
-// ─── Demo List ───────────────────────────────────────────────────────────────
+// Demo List
 
 function DemoList({ activeTab }) {
   return (
@@ -96,7 +96,7 @@ function DemoList({ activeTab }) {
   )
 }
 
-// ─── Demo Chat Header ────────────────────────────────────────────────────────
+//Demo Chat Header
 
 function DemoChatHeader() {
   const navigate = useNavigate()
@@ -124,7 +124,7 @@ function DemoChatHeader() {
   )
 }
 
-// ─── Demo Message Area ───────────────────────────────────────────────────────
+// Demo Message Area
 
 function DemoMessageArea() {
   return (
@@ -172,7 +172,7 @@ function DemoMessageArea() {
   )
 }
 
-// ─── Demo Message Input ──────────────────────────────────────────────────────
+// Demo Message Input
 
 function DemoMessageInput() {
   const [text, setText] = useState("")
@@ -216,7 +216,7 @@ function DemoMessageInput() {
   )
 }
 
-// ─── Demo Banner ─────────────────────────────────────────────────────────────
+// Demo Banner
 
 function DemoBanner() {
   const navigate = useNavigate()
@@ -236,7 +236,7 @@ function DemoBanner() {
   )
 }
 
-// ─── Demo Page ───────────────────────────────────────────────────────────────
+// Demo Page
 
 function DemoPage() {
   const [activeTab, setActiveTab] = useState("chats")
