@@ -6,18 +6,22 @@ import cloudinary from "../lib/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 // Setup and teardown for tests
-const test_user = {
+const testUserTemplate = {
   fullName: "Test User",
-  email: "test@gmail.com",
   password: "Test@1234",
-}
+};
+
+const createTestUser = () => ({
+  ...testUserTemplate,
+  email: `test+${new mongoose.Types.ObjectId().toString()}@gmail.com`,
+});
 
 beforeAll(async () => {
   await mongoose.connect(ENV.MONGO_URI_FOR_TEST);
 });
 
 afterEach(async () => {
-  await User.deleteMany({ email: test_user.email });
+  await User.deleteMany({ email: /test\+[a-f0-9]{24}@gmail\.com/ });
 });
 
 afterAll(async () => {
@@ -65,26 +69,29 @@ describe("Check for wrong credentials ", () => {
 
 describe("Check for POST /auth/signup function", () => {
   test("Successfully creates a new user returns 201", async () => {
-    const res = await axiosInstance.post("/auth/signup", test_user);
+    const testUser = createTestUser();
+    const res = await axiosInstance.post("/auth/signup", testUser);
 
     expect(res.status).toBe(201);
     expect(res.data).toHaveProperty("_id");
     expect(res.data).toHaveProperty("fullName", "Test User");
-    expect(res.data).toHaveProperty("email", "test@gmail.com");
+    expect(res.data).toHaveProperty("email", testUser.email);
     expect(res.data).toHaveProperty("profilePic", "");
     expect(res.data).not.toHaveProperty("password"); // Password should not be returned in response
   });
 
   test("Password is hashed in the database", async () => {
-    await axiosInstance.post("/auth/signup", test_user);
-    const userInDb = await User.findOne({ email: test_user.email });
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser);
+    const userInDb = await User.findOne({ email: testUser.email });
 
     expect(userInDb).toBeDefined();
-    expect(userInDb.password).not.toBe(test_user.password); // Password should be hashed
+    expect(userInDb.password).not.toBe(testUser.password); // Password should be hashed
   });
 
   test("Token is generated and sent in cookie", async () => {
-    const res = await axiosInstance.post("/auth/signup", test_user);
+    const testUser = createTestUser();
+    const res = await axiosInstance.post("/auth/signup", testUser);
 
     expect(res.status).toBe(201);
     const cookies = res.headers["set-cookie"];
@@ -94,9 +101,10 @@ describe("Check for POST /auth/signup function", () => {
   });
 
   test("Existing email returns 400", async () => {
-    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser); // Create the user first
 
-    const res = await axiosInstance.post("/auth/signup", test_user); // Try to create the same user again
+    const res = await axiosInstance.post("/auth/signup", testUser); // Try to create the same user again
 
     expect(res.status).toBe(400);
     expect(res.data).toHaveProperty("message");
@@ -141,17 +149,18 @@ describe("Check for POST /auth/signup function", () => {
 
 describe("Check for POST /auth/login function", () => {
   test("Successfully logs in with correct credentials returns 200", async () => {
-    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser); // Create the user first
 
     const res = await axiosInstance.post("/auth/login", {
-      email: test_user.email,
-      password: test_user.password,
+      email: testUser.email,
+      password: testUser.password,
     });
 
     expect(res.status).toBe(200);
     expect(res.data).toHaveProperty("_id");
     expect(res.data).toHaveProperty("fullName", "Test User");
-    expect(res.data).toHaveProperty("email", "test@gmail.com");
+    expect(res.data).toHaveProperty("email", testUser.email);
     expect(res.data).toHaveProperty("profilePic", "");
     expect(res.data).not.toHaveProperty("password");
   });
@@ -168,7 +177,8 @@ describe("Check for POST /auth/login function", () => {
   });
 
   test("Wrong email returns 400", async () => {
-    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser); // Create the user first
 
     const res = await axiosInstance.post("/auth/login", {
       email: "nothing@gmail.com",
@@ -181,10 +191,11 @@ describe("Check for POST /auth/login function", () => {
   });
 
   test("Wrong password returns 400", async () => {
-    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser); // Create the user first
 
     const res = await axiosInstance.post("/auth/login", {
-      email: "test@gmail.com",
+      email: testUser.email,
       password: "WrongPassword123",
     });
 
@@ -196,11 +207,12 @@ describe("Check for POST /auth/login function", () => {
 
 describe("Check for POST /auth/logout function", () => {
   test("Successfully logs out the user returns 200", async () => {
-    await axiosInstance.post("/auth/signup", test_user); // Create the user first
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser); // Create the user first
   
     const loginRes = await axiosInstance.post("/auth/login", {
-      email: test_user.email,
-      password: test_user.password,
+      email: testUser.email,
+      password: testUser.password,
     });
 
     const cookies = loginRes.headers["set-cookie"];
@@ -227,11 +239,12 @@ describe("Check for POST /auth/logout function", () => {
 
 describe("Check for PUT /auth/update-profile function", () => {
   test("Successfully updates user profile returns 200", async () => {
-    await axiosInstance.post("/auth/signup", test_user);
+    const testUser = createTestUser();
+    await axiosInstance.post("/auth/signup", testUser);
 
     const loginRes = await axiosInstance.post("/auth/login", {
-      email: test_user.email,
-      password: test_user.password,
+      email: testUser.email,
+      password: testUser.password,
     });
 
     const cookies = loginRes.headers["set-cookie"];
