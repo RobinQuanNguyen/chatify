@@ -25,5 +25,3 @@ dist-ssr
 .env
 note.txt
 TUTORIAL.md
-
-generalChatPage.test.jsx
