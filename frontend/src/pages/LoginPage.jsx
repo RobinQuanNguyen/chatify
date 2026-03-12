@@ -78,7 +78,7 @@ function LoginPage() {
                 </div>
 
                 <div className="mt-6 text-center">
-                  <Link to="/" className="auth-link">
+                  <Link to="/demo" className="auth-link">
                     Continue as guest
                   </Link>
                 </div>
