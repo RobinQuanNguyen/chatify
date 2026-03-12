@@ -2,6 +2,7 @@ import { Route, Routes, Navigate } from 'react-router'
 import ChatPage from './pages/ChatPage'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import DemoPage from './pages/DemoPage'
 import { useAuthStore } from './store/useAuthStore.js'  
 import { useEffect } from 'react'
 import PageLoader from './components/PageLoader.jsx'
@@ -17,8 +18,6 @@ function App() {
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
-
-  //console.log({"Auth User": authUser})
 
   if (isCheckingAuth) {
     return <PageLoader />
@@ -36,6 +35,7 @@ function App() {
         <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} /> {/*If user is authenticated, show the ChatPage, otherwise show the LoginPage */} 
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
+        <Route path="/demo" element={!authUser ? <DemoPage /> : <Navigate to={"/"} />} />
       </Routes>
 
       <Toaster/>
