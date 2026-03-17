@@ -47,7 +47,7 @@ export const createGroup = async (req, res) => {
     }
 };
 
-export const getMyGroups = async (req, res) => {
+export const getAllMyGroups = async (req, res) => {
     try {
         const userId = req.user._id;
 
@@ -70,6 +70,33 @@ export const getMyGroups = async (req, res) => {
 
     } catch (error) {
         console.error("Error fetching my groups:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getGroupById = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { groupId } = req.params;
+
+        const group = await Group.findOne({
+            _id: groupId,
+            members: userId,
+        });
+
+        if (!group) {
+            return res.status(403).json({
+                message: "You are not a member of this group or the group does not exist",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Group fetched successfully",
+            data: group,
+        });
+
+    } catch (error) {
+        console.error("Error fetching group by ID:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
