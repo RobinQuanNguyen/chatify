@@ -46,3 +46,30 @@ export const createGroup = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getMyGroups = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // Find groups where user is a member
+        const groups = await Group.find({ members: userId });
+        const isAdminByGroupId = groups.reduce((acc, group) => {
+            acc[group._id.toString()] = group.admins.some(
+                (adminId) => adminId.toString() === userId.toString()
+            );
+            return acc;
+        }, {});
+
+        return res.status(200).json({
+            message: "Groups fetched successfully",
+            isAdminByGroupId,
+            data: groups,
+        });
+
+
+
+    } catch (error) {
+        console.error("Error fetching my groups:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
